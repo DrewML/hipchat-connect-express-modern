@@ -1,0 +1,35 @@
+{
+  "name": "my-hipchat-add-on",
+  "version": "0.1.0",
+  "author": "Andrew Levine",
+  "contributors": [{
+    "name": "Andrew Levine"
+  }],
+  "private": true,
+  "scripts": {
+    "start": "npm run build && NO_DEPRECATION=express node dist/app.js",
+    "build": "./node_modules/.bin/babel src -d dist --source-maps inline"
+  },
+  "dependencies": {
+    "atlassian-connect-express": "^1.0.6",
+    "atlassian-connect-express-hipchat": "^0.2.4",
+    "babel-cli": "^6.1.18",
+    "babel-preset-es2015-node5": "^1.1.0",
+    "body-parser": "^1.14.1",
+    "colors": "^1.1.2",
+    "compression": "^1.6.0",
+    "cors": "^2.7.1",
+    "errorhandler": "^1.4.2",
+    "express": "^4.13.3",
+    "express-hbs": "*",
+    "lodash": "*",
+    "morgan": "^1.6.1",
+    "request": "^2.33.0",
+    "require-dir": "^0.3.0",
+    "rsvp": "^3.0.3",
+    "static-expiry": ">=0.0.10"
+  },
+  "optionalDependencies": {
+    "atlassian-connect-express-redis": "^0.1.3"
+  }
+}

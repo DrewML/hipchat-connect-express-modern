@@ -1,0 +1,48 @@
+{
+    "key": "myexample",
+    "name": "MyExample",
+    "description": "My very first HipChat add-on",
+    "links": {
+        "self": "{{localBaseUrl}}/atlassian-connect.json",
+        "homepage": "{{localBaseUrl}}/atlassian-connect.json"
+    },
+    "capabilities": {
+        "hipchatApiConsumer": {
+            "scopes": [
+                "send_notification",
+                "view_group",
+                "view_room"
+            ]
+        },
+        "installable": {
+            "callbackUrl": "{{localBaseUrl}}/installable"
+        },
+        "configurable": {
+            "url": "{{localBaseUrl}}/config"
+        },
+        "glance": [
+            {
+                "name": {
+                    "value": "Example Glance"
+                },
+                "queryUrl": "{{localBaseUrl}}/glance",
+                "key": "myexample.glance",
+                "target": "myexample.sidebar",
+                "icon": {
+                    "url": "{{localBaseUrl}}/img/hipchat-logo.png",
+                    "url@2x": "{{localBaseUrl}}/img/hipchat-logo.png"
+                }
+            }
+        ],
+        "webPanel": [
+            {
+                "key": "myexample.sidebar",
+                "name": {
+                    "value": "My Example Sidebar"
+                },
+                "location": "hipchat.sidebar.right",
+                "url": "{{localBaseUrl}}/ui/panel"
+            }
+        ]
+    }
+}
