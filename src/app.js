@@ -8,6 +8,7 @@ import express from 'express';
 import acHipchat from 'atlassian-connect-express-hipchat';
 import requireDir from 'require-dir';
 import bodyParser from 'body-parser';
+import addonEvents from './addon-events';
 import compression from 'compression';
 import errorHandler from 'errorhandler';
 
@@ -25,6 +26,9 @@ try {
 const app = express();
 const addon = ac(app);
 const hipchat = acHipchat(addon, app);
+
+// Listen/respond to HipChat addon events
+addonEvents(addon);
 
 // Register Views
 const viewsDir = path.join(__dirname, '../views');
