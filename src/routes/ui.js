@@ -2,9 +2,9 @@ import qs from 'querystring';
 import cors from 'cors';
 
 export function register(app, addon) {
-    const auth = addon.authenticate.bind(addon);
+    const middleware = [cors(), addon.authenticate()];
 
-    app.get('/ui/panel', cors(), auth(), (req, res) => {
+    app.get('/ui/panel', ...middleware, (req, res) => {
         res.render('panel/main');
     });
 }
