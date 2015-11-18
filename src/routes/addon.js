@@ -1,15 +1,17 @@
 import cors from 'cors';
+import {Router} from 'express';
 
 export function register(app, addon) {
+    const router = Router();
 
-    app.get('/', function(req, res) {
+    router.get('/', function(req, res) {
         res.format({
             'text/html': () => res.redirect(addon.descriptor.links.homepage),
             'application/json': () => res.redirect('/atlassian-connect.json')
         });
     });
 
-    app.get('/glance', cors(), addon.authenticate(), (req, res) => {
+    router.get('/glance', cors(), addon.authenticate(), (req, res) => {
         let glancedata = {
             label: {
                 type: 'html',
@@ -19,7 +21,7 @@ export function register(app, addon) {
         res.send(glancedata);
     });
 
-    app.get('/config', addon.authenticate(), (req, res) => {
+    router.get('/config', addon.authenticate(), (req, res) => {
         res.render('config', req.context);
     });
 
@@ -36,4 +38,5 @@ export function register(app, addon) {
         });
     });
 
+    app.use(router);
 }
