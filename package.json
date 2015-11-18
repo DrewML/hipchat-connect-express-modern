@@ -22,11 +22,8 @@
     "errorhandler": "^1.4.2",
     "express": "^4.13.3",
     "express-hbs": "*",
-    "lodash": "*",
     "morgan": "^1.6.1",
-    "request": "^2.33.0",
     "require-dir": "^0.3.0",
-    "rsvp": "^3.0.3",
     "static-expiry": ">=0.0.10"
   },
   "optionalDependencies": {
