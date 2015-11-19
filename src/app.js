@@ -6,32 +6,35 @@ import expiry from 'static-expiry';
 import morgan from 'morgan';
 import express from 'express';
 import acHipchat from 'atlassian-connect-express-hipchat';
+import {multiUse} from './utils';
 import requireDir from 'require-dir';
 import bodyParser from 'body-parser';
 import addonEvents from './addon-events';
 import compression from 'compression';
 import errorHandler from 'errorhandler';
 
-const redisAddonName = 'atlassian-connect-express-redis';
+const redisAddon = 'atlassian-connect-express-redis';
 try {
-    ac.store.register('redis', require(redisAddonName));
+    ac.store.register('redis', require(redisAddon));
 } catch(e) {
     console.warn([
-        `Optional dep '${redisAddonName}' not found.`,
+        `Optional dep '${redisAddon}' not found.`,
         `You must configure an alternative store in 'config.js'.`
     ].join(' '));
 }
 
-// Setup Application
 const app = express();
 const addon = ac(app);
 const hipchat = acHipchat(addon, app);
-
-// Listen/respond to HipChat addon events
-addonEvents(addon);
-
-// Register Views
+const staticDir = path.join(__dirname, '../public');
 const viewsDir = path.join(__dirname, '../views');
+const devEnv = app.get('env') === 'development';
+const middleware = requireDir('./middleware');
+const routes = requireDir('./routes');
+const expiryConfig = { dir: staticDir, debug: devEnv };
+
+// Listen/respond to HipChat addon events (Installed/Uninstalled)
+addonEvents(addon);
 
 app.engine('hbs', hbs.express4({
     partialsDir: path.join(__dirname, '../views'),
@@ -41,32 +44,22 @@ app.set('view engine', 'hbs');
 app.set('views', viewsDir);
 hbs.registerHelper('furl', url => app.locals.furl(url));
 
-// Register 3rd party middleware
-const devEnv = app.get('env') === 'development';
-if (devEnv) app.use(errorHandler());
-
-app.use(morgan(devEnv ? 'dev' : 'common'));
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(compression());
-app.use(addon.middleware());
-
-// Custom middleware
-const middleware = requireDir('./middleware');
-Object.keys(middleware).forEach(key => app.use(middleware[key].default));
-
-const staticDir = path.join(__dirname, '../public');
-
 if (!process.env.PWD) process.env.PWD = process.cwd(); // Fix expiry on Windows
-app.use(expiry(app, {
-    dir: staticDir,
-    debug: devEnv
-}));
-app.use(express.static(staticDir));
 
-// Routing
-const routes = requireDir('./routes');
-Object.keys(routes).forEach(key => routes[key].register(app, addon));
+if (devEnv) app.use(errorHandler());
+multiUse(app, [
+    morgan(devEnv ? 'dev' : 'common'),
+    bodyParser.urlencoded({ extended: false }),
+    bodyParser.json(),
+    compression(),
+    expiry(app, expiryConfig),
+    addon.middleware(),
+    express.static(staticDir),
+    ...Object.keys(middleware).map(key => middleware[key].default)
+]);
+
+// Register routes
+Object.keys(routes).map(key => routes[key].register(app, addon));
 
 const server = app.listen(addon.config.port(), () => {
     const port = server.address().port;
