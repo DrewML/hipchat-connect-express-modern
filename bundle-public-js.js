@@ -3,15 +3,28 @@
 const rollup = require('rollup').rollup;
 const rollupBabel = require('rollup-plugin-babel');
 
-rollup({
+const bundleConfig = [{
     entry: './public/js/bundle/index.js',
-    plugins: [rollupBabel({
-        presets: ['es2015-rollup']
-    })]
-}).then(bundle => {
-    return bundle.write({
-        format: 'iife',
-        dest: './public/dist/bundle.js',
-        sourceMap: 'inline'
+    dest: './public/dist/bundle.js'
+}];
+
+const bundles = bundleConfig.map(config => {
+    return rollup({
+        entry: config.entry,
+        plugins: [
+            rollupBabel({
+                presets: ['es2015-rollup']
+            })
+        ]
     });
 });
+
+Promise.all(bundles).then(results => {
+    return Promise.all(results.map((bundle, i) => {
+        return bundle.write({
+            format: 'iife',
+            dest: bundleConfig[i].dest,
+            sourceMap: 'inline'
+        });
+    }));
+}).catch(err => console.error(err.stack));
